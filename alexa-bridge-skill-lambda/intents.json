@@ -1,0 +1,164 @@
+{
+  "intents": [
+    {
+      "name": "AllLightsStateIntent",
+      "samples": [
+        "Lights {lightState}",
+        "All lights {lightState}"
+      ],
+      "slots": [
+        {
+          "name": "lightState",
+          "type": "lightState",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "AMAZON.CancelIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.HelpIntent",
+      "samples": []
+    },
+    {
+      "name": "AMAZON.StopIntent",
+      "samples": []
+    },
+    {
+      "name": "LightBrightnessIntent",
+      "samples": [
+        "{lightName} brightness {lightBrightness}"
+      ],
+      "slots": [
+        {
+          "name": "lightName",
+          "type": "lightName",
+          "samples": []
+        },
+        {
+          "name": "lightBrightness",
+          "type": "AMAZON.NUMBER",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "LightRenameIntent",
+      "samples": [
+        "Rename {lightName} as {newLightName}",
+        "Rename {lightName} to {newLightName}"
+      ],
+      "slots": [
+        {
+          "name": "lightName",
+          "type": "lightName",
+          "samples": []
+        },
+        {
+          "name": "newLightName",
+          "type": "lightName",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "LightStateIntent",
+      "samples": [
+        "{lightName} state {lightState}",
+        "{lightName} switch {lightState}",
+        "{lightName} power {lightState}",
+        "Switch {lightName} {lightState}",
+        "Power {lightName} {lightState}"
+      ],
+      "slots": [
+        {
+          "name": "lightName",
+          "type": "lightName",
+          "samples": []
+        },
+        {
+          "name": "lightState",
+          "type": "lightState",
+          "samples": []
+        }
+      ]
+    },
+    {
+      "name": "ListLightsIntent",
+      "samples": [
+        "List Lights"
+      ],
+      "slots": []
+    }
+  ],
+  "types": [
+    {
+      "name": "lightName",
+      "values": [
+        {
+          "id": null,
+          "name": {
+            "value": "name",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "light's name",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "name of light",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "long name of light",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "really long name of light",
+            "synonyms": []
+          }
+        },
+        {
+          "id": null,
+          "name": {
+            "value": "all",
+            "synonyms": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "lightState",
+      "values": [
+        {
+          "id": "ON",
+          "name": {
+            "value": "on",
+            "synonyms": []
+          }
+        },
+        {
+          "id": "OFF",
+          "name": {
+            "value": "off",
+            "synonyms": []
+          }
+        }
+      ]
+    }
+  ]
+}
