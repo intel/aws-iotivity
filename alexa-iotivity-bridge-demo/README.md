@@ -24,7 +24,7 @@
 
 You will need to build IoTivity prior to use.
 
-    $ scons -j 4 TARGET_TRANSPORT=IP SECURED=0 BUILD_JAVA=ON
+    $ scons TARGET_TRANSPORT=IP SECURED=0 BUILD_JAVA=ON
 
 Once built, the build.sh and run.sh scripts expect iotivity.jar to be copied to ./lib directory.
 
