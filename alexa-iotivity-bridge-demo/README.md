@@ -29,4 +29,11 @@ You will need to build IoTivity prior to use.
 Once built, the build.sh and run.sh scripts expect iotivity.jar to be copied to ./lib directory.
 
     $ cp <iotivity>/java/iotivity-java/build/libs/iotivity.jar lib/.
+    
+## Build
 
+    $ ./build.sh
+
+## Run
+
+    $ ./run.sh 
