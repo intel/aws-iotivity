@@ -91,7 +91,6 @@ public class OcfLightDevice {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                OcPlatform.Shutdown();
                 msg("Shutdown");
                 e.getWindow().dispose();
             }
