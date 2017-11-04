@@ -158,6 +158,7 @@ abstract public class Resource extends Observable implements OcPlatform.EntityHa
                 notifyObservers();
             }
         });
+        observerNotifier.setDaemon(true);
         observerNotifier.start();
 
         return sendResponse(response);

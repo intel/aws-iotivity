@@ -151,6 +151,7 @@ public class LightPanel extends JLabel implements Observer {
                 }
             }
         });
+        observerNotifier.setDaemon(true);
         observerNotifier.start();
     }
 
