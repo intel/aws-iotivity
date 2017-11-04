@@ -29,6 +29,8 @@ import org.iotivity.base.QualityOfService;
 import org.iotivity.base.ServiceType;
 
 import java.awt.FlowLayout;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,12 +48,6 @@ public class OcfLightDevice {
     static Light light;
 
     public static void main(String args[]) throws IOException, InterruptedException {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                OcPlatform.Shutdown();
-                msg("Shutdown");
-            }
-        });
 
         String name = null;
         boolean powerOn = true;
@@ -91,6 +87,16 @@ public class OcfLightDevice {
 
         JFrame frame = new JFrame(name);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                OcPlatform.Shutdown();
+                msg("Shutdown");
+                e.getWindow().dispose();
+            }
+        });
+
         frame.setResizable(false);
         frame.setLayout(new FlowLayout());
 
