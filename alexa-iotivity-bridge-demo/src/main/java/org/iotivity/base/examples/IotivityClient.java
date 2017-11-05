@@ -38,10 +38,13 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * IotivityClient
- * <p/>
+ *
  * IotivityClient provides interaction with the IoTivity client stack.
  */
 public class IotivityClient implements
@@ -52,12 +55,19 @@ public class IotivityClient implements
         OcResource.OnPostListener,
         OcResource.OnObserveListener {
 
-    private final Map<String, OcResource> mIotivityResourceLookup = new HashMap<>();
-    private final Map<String, Resource> mResourceLookup = new HashMap<>();
-    private final Map<String, ConnectedThing.LightDevice> mConnectedThingLookup = new HashMap<>();
+    private final Map<String, OcResource> mIotivityResourceLookup = new ConcurrentHashMap<>();
+    private final Map<String, Resource> mResourceLookup = new ConcurrentHashMap<>();
+    private final Map<String, ConnectedThing.LightDevice> mConnectedThingLookup = new ConcurrentHashMap<>();
+    private final Map<String, Long> mStaleResourceUriLookup = new ConcurrentHashMap<>();
     private final Comparator<ConnectedThing.LightDevice> nameComparator = new DeviceNameComparator();
-    
+
     private ConnectedThing mConnectedThing;
+
+    public IotivityClient() {
+        // Start running a task to collect stale resources (runs every 10 seconds)
+        Timer timer = new Timer();
+        timer.schedule(new StaleResourcePurgeTask(), 10*1000, 10*1000);
+    }
 
     /**
      * An event handler to be executed whenever a "findResource" request completes successfully
@@ -340,6 +350,7 @@ public class IotivityClient implements
                                 lightDevice.setPowerOn(light.getState());
                                 lightDevice.setBrightness(light.getLightLevel());
                                 mConnectedThingLookup.put(light.getUri(), lightDevice);
+                                mStaleResourceUriLookup.put(light.getUri(), System.currentTimeMillis());
 
                                 // publish updates to connected thing
                                 ConnectedThing.LightDevice[] lightDevices = mConnectedThingLookup.values().toArray(new ConnectedThing.LightDevice[0]);
@@ -695,7 +706,9 @@ public class IotivityClient implements
 //            AlexaIotivityBridgeDemo.msg("Observe sequence number " + sequenceNumber);
 //        }
 
-        onGetCompleted(list, ocRepresentation);
+        if (sequenceNumber < (OcResource.OnObserveListener.MAX_SEQUENCE_NUMBER + 1)) {
+            onGetCompleted(list, ocRepresentation);
+        }
     }
 
     /**
@@ -714,7 +727,7 @@ public class IotivityClient implements
         }
         AlexaIotivityBridgeDemo.msgError("Observation of the found light resource has failed");
     }
-    
+
     public void setConnectedThing(ConnectedThing connectedThing) {
         mConnectedThing = connectedThing;
     }
@@ -768,6 +781,33 @@ public class IotivityClient implements
         @Override
         public int compare(ConnectedThing.LightDevice lhs, ConnectedThing.LightDevice rhs) {
             return (lhs.getName().compareToIgnoreCase(rhs.getName()));
+        }
+    }
+
+    public class StaleResourcePurgeTask extends TimerTask {
+        @Override
+        public void run() {
+            try {
+                long now = System.currentTimeMillis();
+                for (Map.Entry<String,Long> entry : mStaleResourceUriLookup.entrySet()) {
+                    if (entry.getValue() < now - 30*1000) {
+                        // uri not seen in 30 seconds, remove from maps
+                        String key = entry.getKey();
+                        AlexaIotivityBridgeDemo.msg("Removing stale uri " + key);
+                        mConnectedThingLookup.remove(key);
+                        mIotivityResourceLookup.remove(key);
+                        mResourceLookup.remove(key);
+                        mStaleResourceUriLookup.remove(key);
+                    }
+                }
+                if (mConnectedThingLookup.isEmpty()) {
+                    mConnectedThing.setLightDevices(new ConnectedThing.LightDevice[0]);
+                }
+
+            } catch (Exception e) {
+                AlexaIotivityBridgeDemo.msgError("Error running StaleResourcePurgeTask: " + e.toString());
+                e.printStackTrace();
+            }
         }
     }
 }

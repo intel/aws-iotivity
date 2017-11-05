@@ -51,7 +51,7 @@ import java.util.EnumSet;
 
 /**
  * AlexaIotivityBridgeDemo
- * <p/>
+ *
  * AlexaIotivityBridgeDemo is a client app which finds resources
  * advertised by the server pushes them to the cloud and waits
  * for update requests.
@@ -143,7 +143,7 @@ public class AlexaIotivityBridgeDemo {
                 msgError("Failed to invoke find resource API");
             }
 
-            sleep(17);
+            sleep(3);
         }
     }
 
