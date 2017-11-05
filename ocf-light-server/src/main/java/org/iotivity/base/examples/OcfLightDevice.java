@@ -91,6 +91,9 @@ public class OcfLightDevice {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                if (light != null) {
+                    light.unregister();
+                }
                 msg("Shutdown");
                 e.getWindow().dispose();
                 System.exit(0);

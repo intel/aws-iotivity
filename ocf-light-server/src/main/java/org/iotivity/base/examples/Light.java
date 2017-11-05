@@ -91,6 +91,33 @@ public class Light extends Resource {
         OcfLightDevice.msg("Created light resource: " + this);
     }
 
+    public void unregister() {
+        try {
+            lightConfigRes.unregisterResource();
+        } catch (OcException e) {
+            OcfLightDevice.msgError("Failed to unregister " + lightConfigRes.getResourceUri());
+            e.printStackTrace();
+        }
+        try {
+            switchRes.unregisterResource();
+        } catch (OcException e) {
+            OcfLightDevice.msgError("Failed to unregister " + switchRes.getResourceUri());
+            e.printStackTrace();
+        }
+        try {
+            brightnessRes.unregisterResource();
+        } catch (OcException e) {
+            OcfLightDevice.msgError("Failed to unregister " + brightnessRes.getResourceUri());
+            e.printStackTrace();
+        }
+        try {
+            unregisterResource();
+        } catch (OcException e) {
+            OcfLightDevice.msgError("Failed to unregister " + getResourceUri());
+            e.printStackTrace();
+        }
+    }
+
     public void setDeviceName(String name) {
         try {
             OcPlatform.setPropertyValue(PayloadType.DEVICE.getValue(), "n", name);
