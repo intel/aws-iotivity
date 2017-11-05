@@ -93,6 +93,7 @@ public class OcfLightDevice {
             public void windowClosing(WindowEvent e) {
                 msg("Shutdown");
                 e.getWindow().dispose();
+                System.exit(0);
             }
         });
 
