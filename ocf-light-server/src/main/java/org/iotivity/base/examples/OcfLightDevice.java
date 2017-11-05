@@ -92,7 +92,7 @@ public class OcfLightDevice {
             @Override
             public void windowClosing(WindowEvent e) {
                 if (light != null) {
-                    light.unregister();
+//                    light.unregister();
                 }
                 msg("Shutdown");
                 e.getWindow().dispose();
