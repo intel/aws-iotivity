@@ -74,7 +74,7 @@ public class OcfLightDevice {
         }
 
         if (name == null || name.isEmpty()) {
-            name = "Light-" + (System.currentTimeMillis() % 10000);
+            name = "Light " + (System.currentTimeMillis() % 10000);
         }
 
         PlatformConfig platformConfig = new PlatformConfig(ServiceType.IN_PROC, ModeType.SERVER, "0.0.0.0", 0,
