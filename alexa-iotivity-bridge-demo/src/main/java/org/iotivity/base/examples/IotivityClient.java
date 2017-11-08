@@ -92,13 +92,16 @@ public class IotivityClient implements
         if (resourceUri.startsWith(Light.UPNP_OIC_URI_PREFIX_LIGHT) || resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)) {
             if (!mResourceLookup.containsKey(resourceUri)) {
 
-//                AlexaIotivityBridgeDemo.msg("URI of the new light resource: " + resourceUri);
+                AlexaIotivityBridgeDemo.msg("URI of the new light resource: " + resourceUri);
 //                AlexaIotivityBridgeDemo.msg("Host address of the new light resource: " + hostAddress);
 
                 Light light = new Light();
                 light.setUri(resourceUri);
                 
                 mResourceLookup.put(resourceUri, light);
+
+                // Call a local method which will internally invoke "observe" API on the found resource
+                observeFoundResource(ocResource);
             }
 
             // For OCF devices, the name is the 'n' property of the device
@@ -123,9 +126,6 @@ public class IotivityClient implements
         if (tracked) {
             // Call a local method which will internally invoke "get" API on the found resource
             getResourceRepresentation(ocResource);
-
-            // Call a local method which will internally invoke "observe" API on the found resource
-            observeFoundResource(ocResource);
         }
     }
 
@@ -329,7 +329,8 @@ public class IotivityClient implements
                                 AlexaIotivityBridgeDemo.msgError("Unknown rt type of " + rt.getClass().getName());
                             }
 
-                            if (rtAsString != null) {
+                            if ((rtAsString != null) && (!mResourceLookup.containsKey(href))) {
+                                AlexaIotivityBridgeDemo.msg("Finding all resources of type " + rtAsString);
                                 String requestUri = OcPlatform.WELL_KNOWN_QUERY + "?rt=" + rtAsString;
                                 OcPlatform.findResource("", requestUri, EnumSet.of(OcConnectivityType.CT_DEFAULT), new ResourceFoundListener(ocRepUri, href));
                             }
@@ -337,7 +338,7 @@ public class IotivityClient implements
 
                         if (resource instanceof Light) {
                             Light light = (Light) resource;
-                            
+
                             if ((light.getBinarySwitch() != null) && (light.getBinarySwitch().isInitialized()) &&
                                     (light.getBrightness() != null) && light.getBrightness().isInitialized()) {
 
@@ -406,7 +407,7 @@ public class IotivityClient implements
             }
         }
     }
-    
+
     /**
      * Rename a light resource
      */
@@ -706,7 +707,7 @@ public class IotivityClient implements
 //            AlexaIotivityBridgeDemo.msg("Observe sequence number " + sequenceNumber);
 //        }
 
-        if (sequenceNumber < (OcResource.OnObserveListener.MAX_SEQUENCE_NUMBER + 1)) {
+        if ((sequenceNumber > 0) && (sequenceNumber < (OcResource.OnObserveListener.MAX_SEQUENCE_NUMBER + 1))) {
             onGetCompleted(list, ocRepresentation);
         }
     }
@@ -788,20 +789,33 @@ public class IotivityClient implements
         @Override
         public void run() {
             try {
+                boolean mustDeleteShadowDocument = false;
                 long now = System.currentTimeMillis();
                 for (Map.Entry<String,Long> entry : mStaleResourceUriLookup.entrySet()) {
                     if (entry.getValue() < now - 30*1000) {
                         // uri not seen in 30 seconds, remove from maps
                         String key = entry.getKey();
                         AlexaIotivityBridgeDemo.msg("Removing stale uri " + key);
+                        Light light = (Light) mResourceLookup.get(key);
+                        for (Link link : light.getLinks().getLinks()) {
+                            AlexaIotivityBridgeDemo.msg("Removing stale uri link " + link.getHref());
+                            mIotivityResourceLookup.remove(link.getHref());
+                            mResourceLookup.remove(link.getHref());
+                        }
                         mConnectedThingLookup.remove(key);
                         mIotivityResourceLookup.remove(key);
                         mResourceLookup.remove(key);
                         mStaleResourceUriLookup.remove(key);
+
+                        mustDeleteShadowDocument = true;
                     }
                 }
                 if (mConnectedThingLookup.isEmpty()) {
                     mConnectedThing.setLightDevices(new ConnectedThing.LightDevice[0]);
+                    mustDeleteShadowDocument = true;
+                }
+                if (mustDeleteShadowDocument) {
+                    mConnectedThing.delete();
                 }
 
             } catch (Exception e) {

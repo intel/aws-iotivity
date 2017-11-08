@@ -143,7 +143,7 @@ public class AlexaIotivityBridgeDemo {
                 msgError("Failed to invoke find resource API");
             }
 
-            sleep(3);
+            sleep(10);
         }
     }
 
