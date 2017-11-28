@@ -10,7 +10,7 @@ var iotData = new AWS.IotData({endpoint:"a2a16j9xf0mmy6.iot.us-east-1.amazonaws.
 var thingName = "larryslinuxbox";
 
 var APP_ID = "amzn1.ask.skill.04c3ebae-673e-48ed-8892-bb58feb3eb54";
-var SKILL_NAME = "AlexaUpnpBridgeSkill";
+var SKILL_NAME = "AlexaIotivityBridgeSkill";
 
 exports.handler = function(event, context, callback) {
     console.log("Received event:", JSON.stringify(event, null, 2));
