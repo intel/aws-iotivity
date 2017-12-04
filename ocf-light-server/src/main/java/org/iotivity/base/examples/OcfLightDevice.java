@@ -37,6 +37,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
@@ -87,6 +88,13 @@ public class OcfLightDevice {
 
         JFrame frame = new JFrame(name);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        try {
+            frame.setIconImage(ImageIO.read(OcfLightDeviceSansIotivity.class.getResource("/res/bulb-icon-32x32.png")));
+        } catch (IOException ioe) {
+            msgError("Error loading application icon: " + ioe.toString());
+            ioe.printStackTrace();
+        }
 
         frame.addWindowListener(new WindowAdapter() {
             @Override
