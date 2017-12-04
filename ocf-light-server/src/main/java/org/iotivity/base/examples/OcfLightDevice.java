@@ -90,7 +90,7 @@ public class OcfLightDevice {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         try {
-            frame.setIconImage(ImageIO.read(OcfLightDeviceSansIotivity.class.getResource("/res/bulb-icon-32x32.png")));
+            frame.setIconImage(ImageIO.read(OcfLightDevice.class.getResource("/res/bulb-icon-32x32.png")));
         } catch (IOException ioe) {
             msgError("Error loading application icon: " + ioe.toString());
             ioe.printStackTrace();
