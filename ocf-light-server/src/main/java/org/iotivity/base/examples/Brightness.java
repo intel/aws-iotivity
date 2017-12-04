@@ -34,9 +34,9 @@ import org.iotivity.base.OcRepresentation;
  */
 public class Brightness extends Resource implements LightImageObserver {
     static public final String RES_TYPE = "oic.r.light.brightness";
-    static private final String RES_IF = "oic.if.a";
+    static public final String RES_IF = "oic.if.a";
 
-    static private final String BRIGHTNESS_KEY = "brightness";
+    static public final String BRIGHTNESS_KEY = "brightness";
 
     private int brightness;
 
@@ -95,7 +95,7 @@ public class Brightness extends Resource implements LightImageObserver {
             }
         }
     }
-    
+
     @Override
     public String toString() {
         return "[" + super.toString() + ", " + BRIGHTNESS_KEY + ": " + brightness + "]";

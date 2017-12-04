@@ -152,7 +152,7 @@ abstract public class Resource extends Observable implements OcPlatform.EntityHa
                 }
 
                 notifyObservers(request);
-                
+
                 // notify observers (ie implementors of Observer)
                 setChanged();
                 notifyObservers();

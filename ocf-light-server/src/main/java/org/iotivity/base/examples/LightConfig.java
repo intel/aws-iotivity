@@ -32,10 +32,10 @@ import org.iotivity.base.OcRepresentation;
  */
 public class LightConfig extends Resource {
     static public final String RES_TYPE = "oic.wk.con";
-    static private final String RES_IF = "oic.if.rw";
+    static public final String RES_IF = "oic.if.rw";
 
-    static private final String NAME_KEY = "n";
-    static private final String NAME_KEY_SIM = "nn"; // using 'nn' so it can be used in the simulator
+    static public final String NAME_KEY = "n";
+    static public final String NAME_KEY_SIM = "nn"; // using 'nn' so it can be used in the simulator
 
     private String deviceName;
     private Light lightToConfig; // the light to be configured

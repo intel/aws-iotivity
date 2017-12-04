@@ -34,9 +34,9 @@ import org.iotivity.base.OcRepresentation;
  */
 public class Switch extends Resource implements LightImageObserver {
     static public final String RES_TYPE = "oic.r.switch.binary";
-    static private final String RES_IF = "oic.if.a";
+    static public final String RES_IF = "oic.if.a";
 
-    static private final String VALUE_KEY = "value";
+    static public final String VALUE_KEY = "value";
 
     private boolean powerOn;
 
@@ -89,7 +89,7 @@ public class Switch extends Resource implements LightImageObserver {
             }
         }
     }
-    
+
     @Override
     public String toString() {
         return "[" + super.toString() + ", " + VALUE_KEY + ": " + powerOn + "]";

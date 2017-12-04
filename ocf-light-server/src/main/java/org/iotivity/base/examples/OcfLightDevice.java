@@ -48,34 +48,24 @@ public class OcfLightDevice {
 
     static Light light;
 
+    static boolean useLinks;
+    static String name;
+    static boolean powerOn = true;
+    static int brightness = 100;
+
     public static void main(String args[]) throws IOException, InterruptedException {
 
-        String name = null;
-        boolean powerOn = true;
-        int brightness = 100;
-
-        if (args.length > 0) {
-            name = args[0];
-        }
-
-        if (args.length > 1) {
-            String arg = args[1];
-            powerOn = arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("yes") || arg.equals("1");
-        }
-
-        if (args.length > 2) {
-            try {
-                brightness = Integer.valueOf(args[2]);
-            } catch (NumberFormatException e) {
-                msg("Brightness must be an integer in the range (0, 100), using default 100.");
+        if ((args.length > 0) && (args[0].startsWith("-"))) {
+            if (args[0].equalsIgnoreCase("-l")) {
+                useLinks = true;
+                msg("Server using links");
+            } else {
+                msg("Unknown runtime parameter: " + args[0]);
             }
+            parseNameAndInitialSettings(args, 1);
 
-            brightness = Math.max(0, brightness);
-            brightness = Math.min(100, brightness);
-        }
-
-        if (name == null || name.isEmpty()) {
-            name = "Light " + (System.currentTimeMillis() % 10000);
+        } else {
+            parseNameAndInitialSettings(args, 0);
         }
 
         PlatformConfig platformConfig = new PlatformConfig(ServiceType.IN_PROC, ModeType.SERVER, "0.0.0.0", 0,
@@ -83,7 +73,7 @@ public class OcfLightDevice {
 
         OcPlatform.Configure(platformConfig);
         msg("Platform configured");
-        
+
         String uuid = UUID.randomUUID().toString();
 
         JFrame frame = new JFrame(name);
@@ -112,11 +102,38 @@ public class OcfLightDevice {
         frame.setLayout(new FlowLayout());
 
         LightPanel lightPanel = new LightPanel(powerOn, brightness);
-        light = new Light(name, uuid, powerOn, brightness, lightPanel);
+        light = new Light(useLinks, name, uuid, powerOn, brightness, lightPanel);
 
         frame.setContentPane(lightPanel);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private static void parseNameAndInitialSettings(String args[], int index) {
+        if (args.length > index) {
+            name = args[index];
+        }
+
+        if (args.length > index + 1) {
+            String arg = args[index + 1];
+            powerOn = arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("yes")
+                    || arg.equals("1");
+        }
+
+        if (args.length > index + 2) {
+            try {
+                brightness = Integer.valueOf(args[index + 2]);
+            } catch (NumberFormatException e) {
+                msg("Brightness must be an integer in the range (0, 100), using default 100.");
+            }
+
+            brightness = Math.max(0, brightness);
+            brightness = Math.min(100, brightness);
+        }
+
+        if (name == null || name.isEmpty()) {
+            name = "Light " + (System.currentTimeMillis() % 10000);
+        }
     }
 
     private static void sleep(int seconds) {

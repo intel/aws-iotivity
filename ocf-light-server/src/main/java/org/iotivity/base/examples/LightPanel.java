@@ -101,7 +101,6 @@ public class LightPanel extends JLabel implements Observer {
         g.drawImage(imageOn, 0, 0, null);
     }
 
-    
     @Override
     public void update(Observable o, Object arg) {
         boolean repaintRequired = false;
@@ -121,6 +120,21 @@ public class LightPanel extends JLabel implements Observer {
             String deviceName = ((LightConfig) o).getDeviceName();
             JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
             frame.setTitle(deviceName);
+
+        } else if (o instanceof Light) {
+            OcfLightDevice.msgError("LightPanel() in update");
+
+            String deviceName = ((Light) o).getDeviceName();
+            powerOn = ((Light) o).getPowerOn();
+            brightness = ((Light) o).getBrightness();
+
+            JFrame frame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            frame.setTitle(deviceName);
+
+            SettingsPopupMenu popupMenu = (SettingsPopupMenu) getComponentPopupMenu();
+            popupMenu.setPowerOn(powerOn);
+            popupMenu.setBrightness(brightness);
+            repaintRequired = true;
 
         } else {
             // ignore
