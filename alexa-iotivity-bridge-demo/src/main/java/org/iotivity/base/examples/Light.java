@@ -42,16 +42,41 @@ public class Light extends Device {
     private Brightness mBrightness;
     private Configuration mConfig;
 
+    private String mName = "Unknown";
+    private boolean mState = BinarySwitch.DEFAULT_VALUE;
+    private int mLightLevel = Brightness.DEFAULT_BRIGHTNESS;
+
     public Light() {
         super();
     }
 
     public void setOcRepresentation(OcRepresentation rep) throws OcException {
         super.setOcRepresentation(rep);
+        if (rep.hasAttribute(Configuration.NAME_KEY)) {
+            Object obj = rep.getValue(Configuration.NAME_KEY);
+            if (obj instanceof String) {
+                mName = (String) obj;
+            }
+        }
+        if (rep.hasAttribute(BinarySwitch.VALUE_KEY)) {
+            Object obj = rep.getValue(BinarySwitch.VALUE_KEY);
+            if (obj instanceof Boolean) {
+                mState = (Boolean) obj;
+            }
+        }
+        if (rep.hasAttribute(Brightness.BRIGHTNESS_KEY)) {
+            Object obj = rep.getValue(Brightness.BRIGHTNESS_KEY);
+            if (obj instanceof Integer) {
+                mLightLevel = (Integer) obj;
+            }
+        }
     }
 
     public OcRepresentation getOcRepresentation() throws OcException {
         OcRepresentation rep = super.getOcRepresentation();
+        rep.setValue(Configuration.NAME_KEY, mName);
+        rep.setValue(BinarySwitch.VALUE_KEY, mState);
+        rep.setValue(Brightness.BRIGHTNESS_KEY, mLightLevel);
         return rep;
     }
 
@@ -79,35 +104,54 @@ public class Light extends Device {
         mConfig = config;
     }
 
-    public boolean getState() {
-        boolean state = BinarySwitch.DEFAULT_VALUE;
-
-        if (mBinarySwitch != null) {
-            state = mBinarySwitch.getValue();
+    public String getName() {
+        if (mConfig != null) {
+            mName = mConfig.getName();
         }
 
-        return state;
+        return mName;
+    }
+
+    public void setName(String name) {
+        if (mConfig != null) {
+            mConfig.setName(name);
+
+        } else {
+            mName = name;
+        }
+    }
+
+    public boolean getState() {
+        if (mBinarySwitch != null) {
+            mState = mBinarySwitch.getValue();
+        }
+
+        return mState;
     }
 
     public void setState(boolean state) {
         if (mBinarySwitch != null) {
             mBinarySwitch.setValue(state);
+
+        } else {
+            mState = state;
         }
     }
 
     public int getLightLevel() {
-        int lightLevel = Brightness.DEFAULT_BRIGHTNESS;
-
         if (mBrightness != null) {
-            lightLevel = mBrightness.getBrightness();
+            mLightLevel = mBrightness.getBrightness();
         }
 
-        return lightLevel;
+        return mLightLevel;
     }
 
     public void setLightLevel(int lightLevel) {
         if (mBrightness != null) {
             mBrightness.setBrightness(lightLevel);
+
+        } else {
+            mLightLevel = lightLevel;
         }
     }
 
@@ -117,9 +161,16 @@ public class Light extends Device {
         String brightnessAsString = mBrightness != null ? mBrightness.toString() : "brightness is null";
         String configAsString = mConfig != null ? mConfig.toString() : "configuration is null";
 
-        return "[" + super.toString() +
-                ", " + binarySwitchAsString +
-                ", " + brightnessAsString + 
-                ", " + configAsString + "]";
+        if (mConfig != null) {
+            return "[" + super.toString() +
+                    ", " + binarySwitchAsString +
+                    ", " + brightnessAsString +
+                    ", " + configAsString + "]";
+        } else {
+            return "[" + super.toString() +
+                    ", " + Configuration.NAME_KEY + ": " + mName +
+                    ", " + BinarySwitch.VALUE_KEY + ": " + mState +
+                    ", " + Brightness.BRIGHTNESS_KEY + ": " + mBrightness + "]";
+        }
     }
 }

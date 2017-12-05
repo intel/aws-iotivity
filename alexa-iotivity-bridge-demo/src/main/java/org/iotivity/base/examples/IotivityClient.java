@@ -339,8 +339,9 @@ public class IotivityClient implements
                         if (resource instanceof Light) {
                             Light light = (Light) resource;
 
-                            if ((light.getBinarySwitch() != null) && (light.getBinarySwitch().isInitialized()) &&
-                                    (light.getBrightness() != null) && light.getBrightness().isInitialized()) {
+                            if (((light.getBinarySwitch() != null) && (light.getBinarySwitch().isInitialized())
+                                    && (light.getBrightness() != null) && light.getBrightness().isInitialized())
+                                    || (!light.hasLinksProperty())) {
 
                                 ConnectedThing.LightDevice lightDevice = mConnectedThingLookup.get(light.getUri());
                                 if (lightDevice == null) {
@@ -429,41 +430,65 @@ public class IotivityClient implements
 
         Light light = (Light) mResourceLookup.get(resourceUri);
         if (light != null && resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)) {
-
-            final Configuration config = light.getConfiguration();
-            if ((config != null) && (config.isInitialized())) {
-                config.setName(newName);
-                OcRepresentation configRepresentation = null;
-                try {
-                    configRepresentation = config.getOcRepresentation();
-
-                } catch (OcException e) {
-                    AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from a configuration -- " + e.toString());
-                }
-
-                if (configRepresentation != null) {
-                    Map<String, String> queryParams = new HashMap<>();
+            if (light.hasLinksProperty()) {
+                final Configuration config = light.getConfiguration();
+                if ((config != null) && (config.isInitialized())) {
+                    config.setName(newName);
+                    OcRepresentation configRepresentation = null;
                     try {
-                        // Invoke resource's "put" API with a new representation
-                        OcResource configResource = mIotivityResourceLookup.get(config.getUri());
-                        if (configResource != null) {
-                            configResource.put(configRepresentation, queryParams, this);
-
-                        } else {
-                            AlexaIotivityBridgeDemo.msgError("No configuration for light uri " + resourceUri);
-                        }
+                        configRepresentation = config.getOcRepresentation();
 
                     } catch (OcException e) {
-                        AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
+                        AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from a configuration -- " + e.toString());
+                    }
+
+                    if (configRepresentation != null) {
+                        Map<String, String> queryParams = new HashMap<>();
+                        try {
+                            // Invoke resource's "put" API with a new representation
+                            OcResource configResource = mIotivityResourceLookup.get(config.getUri());
+                            if (configResource != null) {
+                                configResource.put(configRepresentation, queryParams, this);
+
+                            } else {
+                                AlexaIotivityBridgeDemo.msgError("No configuration for light uri " + resourceUri);
+                            }
+
+                        } catch (OcException e) {
+                            AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
+                        }
+                    }
+
+                } else {
+                    if (config == null) {
+                        AlexaIotivityBridgeDemo.msgError("No configuration for light uri " + resourceUri);
+
+                    } else {
+                        AlexaIotivityBridgeDemo.msgError("No configuration (initialized) for light uri " + resourceUri);
                     }
                 }
 
             } else {
-                if (config == null) {
-                    AlexaIotivityBridgeDemo.msgError("No configuration for light uri " + resourceUri);
+                // properties are on the device
+                light.setName(newName);
 
-                } else {
-                    AlexaIotivityBridgeDemo.msgError("No configuration (initialized) for light uri " + resourceUri);
+                OcRepresentation lightRepresentation = null;
+                try {
+                    lightRepresentation = light.getOcRepresentation();
+
+                } catch (OcException e) {
+                    AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from light -- " + e.toString());
+                }
+
+                if (lightRepresentation != null) {
+                    Map<String, String> queryParams = new HashMap<>();
+                    try {
+                        // Invoke resource's "put" API with a new representation
+                        ocResource.put(lightRepresentation, queryParams, this);
+
+                    } catch (OcException e) {
+                        AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
+                    }
                 }
             }
 
@@ -484,91 +509,117 @@ public class IotivityClient implements
         Light light = (Light) mResourceLookup.get(resourceUri);
         if (light != null) {
             // set new values
-            // actually, set directly on the service (avoid possible conflict if auto discover is running)
-            //light.setState(newState);
-            //light.setLightLevel(newLightLevel);
+            if (light.hasLinksProperty()) {
+                // actually, set directly on the service (avoid possible conflict if auto discover is running)
+                // light.setState(newState);
+                // light.setLightLevel(newLightLevel);
 
-            final BinarySwitch binarySwitch = light.getBinarySwitch();
-            if ((binarySwitch != null) && (binarySwitch.isInitialized())) {
-                binarySwitch.setValue(newState);
-                OcRepresentation binarySwitchRepresentation = null;
-                try {
-                    binarySwitchRepresentation = binarySwitch.getOcRepresentation();
-
-                } catch (OcException e) {
-                    AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from a binary switch -- " + e.toString());
-                }
-
-                if (binarySwitchRepresentation != null) {
-                    Map<String, String> queryParams = new HashMap<>();
+                final BinarySwitch binarySwitch = light.getBinarySwitch();
+                if ((binarySwitch != null) && (binarySwitch.isInitialized())) {
+                    binarySwitch.setValue(newState);
+                    OcRepresentation binarySwitchRepresentation = null;
                     try {
-                        // Invoke resource's "put" (or "post") API with a new representation
-                        OcResource binarySwitchResource = mIotivityResourceLookup.get(binarySwitch.getUri());
-                        if (binarySwitchResource != null) {
-                            if (binarySwitchResource.getUri().startsWith(BinarySwitch.UPNP_OIC_URI_PREFIX_BINARY_SWITCH)) {
-                                // upnp bridge requires 'post'
-                                binarySwitchResource.post(binarySwitchRepresentation, queryParams, this);
-                            } else {
-                                binarySwitchResource.put(binarySwitchRepresentation, queryParams, this);
-                            }
-
-                        } else {
-                            AlexaIotivityBridgeDemo.msgError("No binary switch for light uri " + resourceUri);
-                        }
+                        binarySwitchRepresentation = binarySwitch.getOcRepresentation();
 
                     } catch (OcException e) {
-                        AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
+                        AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from a binary switch -- " + e.toString());
+                    }
+
+                    if (binarySwitchRepresentation != null) {
+                        Map<String, String> queryParams = new HashMap<>();
+                        try {
+                            // Invoke resource's "put" (or "post") API with a new representation
+                            OcResource binarySwitchResource = mIotivityResourceLookup.get(binarySwitch.getUri());
+                            if (binarySwitchResource != null) {
+                                if (binarySwitchResource.getUri().startsWith(BinarySwitch.UPNP_OIC_URI_PREFIX_BINARY_SWITCH)) {
+                                    // upnp bridge requires 'post'
+                                    binarySwitchResource.post(binarySwitchRepresentation, queryParams, this);
+                                } else {
+                                    binarySwitchResource.put(binarySwitchRepresentation, queryParams, this);
+                                }
+
+                            } else {
+                                AlexaIotivityBridgeDemo.msgError("No binary switch for light uri " + resourceUri);
+                            }
+
+                        } catch (OcException e) {
+                            AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
+                        }
+                    }
+
+                } else {
+                    if (binarySwitch == null) {
+                        AlexaIotivityBridgeDemo.msgError("No binary switch for light uri " + resourceUri);
+
+                    } else {
+                        AlexaIotivityBridgeDemo.msgError("No binary switch (initialized) for light uri " + resourceUri);
+                    }
+                }
+
+                Brightness brightness = light.getBrightness();
+                if ((brightness != null) && (brightness.isInitialized())) {
+                    brightness.setBrightness(newLightLevel);
+                    OcRepresentation brightnessRepresentation = null;
+                    try {
+                        brightnessRepresentation = brightness.getOcRepresentation();
+
+                    } catch (OcException e) {
+                        AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from a brightness -- " + e.toString());
+                    }
+
+                    if (brightnessRepresentation != null) {
+                        Map<String, String> queryParams = new HashMap<>();
+                        try {
+                            // Invoke resource's "put" (or "post") API with a new representation
+                            OcResource brightnessResource = mIotivityResourceLookup.get(brightness.getUri());
+                            if (brightnessResource != null) {
+                                if (brightnessResource.getUri().startsWith(Brightness.UPNP_OIC_URI_PREFIX_BRIGHTNESS)) {
+                                    // upnp bridge requires 'post'
+                                    brightnessResource.post(brightnessRepresentation, queryParams, this);
+                                } else {
+                                    brightnessResource.put(brightnessRepresentation, queryParams, this);
+                                }
+
+                            } else {
+                                AlexaIotivityBridgeDemo.msgError("No brightness for light uri " + resourceUri);
+                            }
+
+                        } catch (OcException e) {
+                            AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
+                        }
+                    }
+
+                } else {
+                    if (brightness == null) {
+                        AlexaIotivityBridgeDemo.msgError("No brightness for light uri " + resourceUri);
+
+                    } else {
+                        AlexaIotivityBridgeDemo.msgError("No brightness (initialized) for light uri " + resourceUri);
                     }
                 }
 
             } else {
-                if (binarySwitch == null) {
-                    AlexaIotivityBridgeDemo.msgError("No binary switch for light uri " + resourceUri);
+                // properties are on the device
+                light.setState(newState);
+                light.setLightLevel(newLightLevel);
 
-                } else {
-                    AlexaIotivityBridgeDemo.msgError("No binary switch (initialized) for light uri " + resourceUri);
-                }
-            }
-
-            Brightness brightness = light.getBrightness();
-            if ((brightness != null) && (brightness.isInitialized())) {
-                brightness.setBrightness(newLightLevel);
-                OcRepresentation brightnessRepresentation = null;
+                OcRepresentation lightRepresentation = null;
                 try {
-                    brightnessRepresentation = brightness.getOcRepresentation();
+                    lightRepresentation = light.getOcRepresentation();
 
                 } catch (OcException e) {
-                    AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from a brightness -- " + e.toString());
+                    AlexaIotivityBridgeDemo.msgError("Failed to get OcRepresentation from light -- " + e.toString());
                 }
 
-                if (brightnessRepresentation != null) {
+                if (lightRepresentation != null) {
                     Map<String, String> queryParams = new HashMap<>();
                     try {
-                        // Invoke resource's "put" (or "post") API with a new representation
-                        OcResource brightnessResource = mIotivityResourceLookup.get(brightness.getUri());
-                        if (brightnessResource != null) {
-                            if (brightnessResource.getUri().startsWith(Brightness.UPNP_OIC_URI_PREFIX_BRIGHTNESS)) {
-                                // upnp bridge requires 'post'
-                                brightnessResource.post(brightnessRepresentation, queryParams, this);
-                            } else {
-                                brightnessResource.put(brightnessRepresentation, queryParams, this);
-                            }
-
-                        } else {
-                            AlexaIotivityBridgeDemo.msgError("No brightness for light uri " + resourceUri);
-                        }
+                        // Invoke resource's "put" API with a new representation
+                        ocResource.put(lightRepresentation, queryParams, this);
 
                     } catch (OcException e) {
                         AlexaIotivityBridgeDemo.msgError("Error occurred while invoking \"put\" API -- " + e.toString());
                     }
-                }
-
-            } else {
-                if (brightness == null) {
-                    AlexaIotivityBridgeDemo.msgError("No brightness for light uri " + resourceUri);
-
-                } else {
-                    AlexaIotivityBridgeDemo.msgError("No brightness (initialized) for light uri " + resourceUri);
                 }
             }
 
