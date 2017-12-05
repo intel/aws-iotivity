@@ -116,8 +116,10 @@ public class OcfLightDevice {
 
         if (args.length > index + 1) {
             String arg = args[index + 1];
-            powerOn = arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("yes")
-                    || arg.equals("1");
+            if (!arg.isEmpty()) {
+                powerOn = arg.equalsIgnoreCase("true") || arg.equalsIgnoreCase("on") || arg.equalsIgnoreCase("yes")
+                        || arg.equals("1");
+            }
         }
 
         if (args.length > index + 2) {

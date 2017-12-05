@@ -122,8 +122,6 @@ public class LightPanel extends JLabel implements Observer {
             frame.setTitle(deviceName);
 
         } else if (o instanceof Light) {
-            OcfLightDevice.msgError("LightPanel() in update");
-
             String deviceName = ((Light) o).getDeviceName();
             powerOn = ((Light) o).getPowerOn();
             brightness = ((Light) o).getBrightness();
