@@ -36,6 +36,7 @@ public class Light extends Device {
     public static final String OIC_TYPE_DEVICE_LIGHT = "oic.d.light";
     public static final String OCF_OIC_URI_PREFIX_LIGHT = "/ocf/light/";
     public static final String UPNP_OIC_URI_PREFIX_LIGHT = "/upnp/light/";
+    public static final String OIC_URI_PREFIX_LIGHT = "/light/";
 
 
     private BinarySwitch mBinarySwitch;

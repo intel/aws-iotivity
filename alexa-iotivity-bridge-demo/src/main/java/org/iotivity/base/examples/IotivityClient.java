@@ -89,7 +89,9 @@ public class IotivityClient implements
         boolean tracked = false;
 
         // For now, we are only interested in known light resources
-        if (resourceUri.startsWith(Light.UPNP_OIC_URI_PREFIX_LIGHT) || resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)) {
+        if (resourceUri.startsWith(Light.UPNP_OIC_URI_PREFIX_LIGHT)
+                || resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)
+                || resourceUri.startsWith(Light.OIC_URI_PREFIX_LIGHT)) {
             if (!mResourceLookup.containsKey(resourceUri)) {
 
                 AlexaIotivityBridgeDemo.msg("URI of the new light resource: " + resourceUri);
@@ -105,7 +107,8 @@ public class IotivityClient implements
             }
 
             // For OCF devices, the name is the 'n' property of the device
-            if (resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)) {
+            if (resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)
+                    || resourceUri.startsWith(Light.OIC_URI_PREFIX_LIGHT)) {
                 Light light = (Light) mResourceLookup.get(resourceUri);
                 OcPlatform.OnDeviceFoundListener deviceFoundListener = new DeviceFoundListener(light);
                 try {
