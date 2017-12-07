@@ -171,7 +171,7 @@ public class Light extends Device {
             return "[" + super.toString() +
                     ", " + Configuration.NAME_KEY + ": " + mName +
                     ", " + BinarySwitch.VALUE_KEY + ": " + mState +
-                    ", " + Brightness.BRIGHTNESS_KEY + ": " + mBrightness + "]";
+                    ", " + Brightness.BRIGHTNESS_KEY + ": " + mLightLevel + "]";
         }
     }
 }
