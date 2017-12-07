@@ -16,5 +16,8 @@
 ./src/main/java/com/amazonaws/services/iot/client/sample/sampleUtil/SampleUtil.java
 ./src/main/java/com/amazonaws/services/iot/client/sample/sampleUtil/CommandArguments.java
 ./src/main/java/com/amazonaws/services/iot/client/sample/sampleUtil/PrivateKeyReader.java
+./src/main/java/org/iotivity/base/examples/IotivityScanner.java
+./src/main/java/org/iotivity/base/examples/IotivityScannerClient.java
+
 
 
