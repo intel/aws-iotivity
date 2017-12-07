@@ -22,7 +22,9 @@
 
 package org.iotivity.base.examples;
 
+import org.iotivity.base.ErrorCode;
 import org.iotivity.base.ModeType;
+import org.iotivity.base.OcException;
 import org.iotivity.base.OcPlatform;
 import org.iotivity.base.PlatformConfig;
 import org.iotivity.base.QualityOfService;
@@ -35,6 +37,8 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
@@ -48,6 +52,9 @@ public class OcfLightDevice {
 
     static Light light;
 
+    static boolean isTest;
+    static int testFrequency = 3;
+
     static boolean useLinks;
     static String name;
     static boolean powerOn = true;
@@ -56,7 +63,17 @@ public class OcfLightDevice {
     public static void main(String args[]) throws IOException, InterruptedException {
 
         if ((args.length > 0) && (args[0].startsWith("-"))) {
-            if (args[0].equalsIgnoreCase("-l")) {
+            if (args[0].startsWith("-t")) {
+                isTest = true;
+                try {
+                    testFrequency = Integer.valueOf(args[0].substring(2));
+                } catch (NumberFormatException e) {
+                    msg("Frequency must be an integer in the range (1, 60), using default 3.");
+                }
+                testFrequency = Math.max(1, testFrequency);
+                testFrequency = Math.min(60, testFrequency);
+                msg("Server in test mode with frequecy of " + testFrequency);
+            } else if (args[0].equalsIgnoreCase("-l")) {
                 useLinks = true;
                 msg("Server using links");
             } else {
@@ -81,7 +98,6 @@ public class OcfLightDevice {
             uuid = UUID.randomUUID().toString();
             NamesPropertyFile.getInstance().updateNamesProperty(name, uuid);
         }
-
 
         JFrame frame = new JFrame(name);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -114,6 +130,12 @@ public class OcfLightDevice {
         frame.setContentPane(lightPanel);
         frame.pack();
         frame.setVisible(true);
+
+        if (isTest) {
+            // Start running a task to toggle the light and change its brightness
+            Timer timer = new Timer();
+            timer.schedule(new ToggleTask(lightPanel), testFrequency * 1000, testFrequency * 1000);
+        }
     }
 
     private static void parseNameAndInitialSettings(String args[], int index) {
@@ -162,5 +184,33 @@ public class OcfLightDevice {
 
     public static void msgError(final String text) {
         msg("[Error] " + text);
+    }
+
+    public static class ToggleTask extends TimerTask {
+        LightPanel lightPanel;
+
+        public ToggleTask(LightPanel lightPanel) {
+            this.lightPanel = lightPanel;
+        }
+
+        @Override
+        public void run() {
+            boolean powerOn = ! light.getPowerOn();
+            int brightness = (light.getBrightness() + 10) % 101;
+            light.update(powerOn, brightness);
+            lightPanel.update(light, null);
+            OcfLightDevice.msg("Notifying observers for resource " + light.toString());
+            try {
+                OcPlatform.notifyAllObservers(light.getResourceHandle());
+            } catch (OcException e) {
+                ErrorCode errorCode = e.getErrorCode();
+                if (ErrorCode.NO_OBSERVERS == errorCode) {
+//                    OcfLightDevice.msg("No observers found");
+                } else {
+                    OcfLightDevice.msgError(e.toString());
+                    OcfLightDevice.msgError("Failed to notify observers");
+                }
+            }
+        }
     }
 }
