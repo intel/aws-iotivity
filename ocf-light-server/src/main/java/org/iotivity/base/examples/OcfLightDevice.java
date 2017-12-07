@@ -74,7 +74,14 @@ public class OcfLightDevice {
         OcPlatform.Configure(platformConfig);
         msg("Platform configured");
 
-        String uuid = UUID.randomUUID().toString();
+        String uuid = null;
+        if (NamesPropertyFile.getInstance().hasName(name)) {
+            uuid = NamesPropertyFile.getInstance().getUuidForName(name);
+        } else {
+            uuid = UUID.randomUUID().toString();
+            NamesPropertyFile.getInstance().updateNamesProperty(name, uuid);
+        }
+
 
         JFrame frame = new JFrame(name);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

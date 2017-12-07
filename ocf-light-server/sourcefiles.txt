@@ -8,5 +8,6 @@
 ./src/main/java/org/iotivity/base/examples/Link.java
 ./src/main/java/org/iotivity/base/examples/LightPanel.java
 ./src/main/java/org/iotivity/base/examples/LightImageObserver.java
+./src/main/java/org/iotivity/base/examples/NamesPropertyFile.java
 
 
