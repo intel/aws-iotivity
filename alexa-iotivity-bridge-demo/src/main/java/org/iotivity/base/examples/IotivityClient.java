@@ -99,11 +99,11 @@ public class IotivityClient implements
 
                 Light light = new Light();
                 light.setUri(resourceUri);
-                
+
                 mResourceLookup.put(resourceUri, light);
 
                 // Call a local method which will internally invoke "observe" API on the found resource
-                observeFoundResource(ocResource);
+//                observeFoundResource(ocResource);
             }
 
             // For OCF devices, the name is the 'n' property of the device
@@ -797,7 +797,7 @@ public class IotivityClient implements
             append("\"uri\":\"" + lightDevice.getUri() + "\",").
             append("\"powerOn\":" + lightDevice.getPowerOn() + ",").
             append("\"brightness\":" + lightDevice.getBrightness() + "}");
-            
+
             if (++index < lightDevices.length) {
                 payload.append(",");
             }
@@ -807,13 +807,13 @@ public class IotivityClient implements
     }
 
     class DeviceFoundListener implements OcPlatform.OnDeviceFoundListener {
-        
+
         Light light;
-        
+
         public DeviceFoundListener(Light light) {
-            this.light = light; 
+            this.light = light;
         }
-        
+
         @Override
         public void onDeviceFound(OcRepresentation ocRepresentation) {
             try {
