@@ -197,9 +197,9 @@ public class OcfLightDevice {
         public void run() {
             boolean powerOn = ! light.getPowerOn();
             int brightness = (light.getBrightness() + 10) % 101;
-            lightPanel.update(light, null);
             OcfLightDevice.msg("Notifying observers for resource " + light.toString());
             light.update(powerOn, brightness);
+            lightPanel.update(light, null);
         }
     }
 }
