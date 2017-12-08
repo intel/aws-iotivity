@@ -197,20 +197,9 @@ public class OcfLightDevice {
         public void run() {
             boolean powerOn = ! light.getPowerOn();
             int brightness = (light.getBrightness() + 10) % 101;
-            light.update(powerOn, brightness);
             lightPanel.update(light, null);
             OcfLightDevice.msg("Notifying observers for resource " + light.toString());
-            try {
-                OcPlatform.notifyAllObservers(light.getResourceHandle());
-            } catch (OcException e) {
-                ErrorCode errorCode = e.getErrorCode();
-                if (ErrorCode.NO_OBSERVERS == errorCode) {
-//                    OcfLightDevice.msg("No observers found");
-                } else {
-                    OcfLightDevice.msgError(e.toString());
-                    OcfLightDevice.msgError("Failed to notify observers");
-                }
-            }
+            light.update(powerOn, brightness);
         }
     }
 }
