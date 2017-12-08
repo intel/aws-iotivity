@@ -144,6 +144,8 @@ public class AlexaIotivityBridgeDemo {
             }
 
             sleep(10);
+
+            iotivityClient.cancelObserve();
         }
     }
 

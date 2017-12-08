@@ -93,10 +93,10 @@ public class IotivityScannerClient implements
                 light.setUri(resourceUri);
 
                 mResourceLookup.put(resourceUri, light);
-
-                // Call a local method which will internally invoke "observe" API on the found resource
-//                observeFoundResource(ocResource);
             }
+
+            // Call a local method which will internally invoke "observe" API on the found resource
+            observeFoundResource(ocResource);
 
             // For OCF devices, the name is the 'n' property of the device
             if (resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)) {
@@ -706,11 +706,11 @@ public class IotivityScannerClient implements
      */
     @Override
     public synchronized void onObserveCompleted(List<OcHeaderOption> list, OcRepresentation ocRepresentation, int sequenceNumber) {
-//        if (OcResource.OnObserveListener.REGISTER == sequenceNumber) {
-//            IotivityScanner.msg("Observe registration action is successful");
-//        } else {
-//            IotivityScanner.msg("Observe sequence number " + sequenceNumber);
-//        }
+        if (OcResource.OnObserveListener.REGISTER == sequenceNumber) {
+            IotivityScanner.msg("Observe registration action is successful");
+        } else {
+            IotivityScanner.msg("Observe sequence number " + sequenceNumber);
+        }
 
         if ((sequenceNumber > 0) && (sequenceNumber < (OcResource.OnObserveListener.MAX_SEQUENCE_NUMBER + 1))) {
             onGetCompleted(list, ocRepresentation);
@@ -732,6 +732,19 @@ public class IotivityScannerClient implements
             IotivityScanner.msgError("Error code: " + errCode);
         }
         IotivityScanner.msgError("Observation of the found light resource has failed");
+    }
+
+    public synchronized void cancelObserve() {
+        for (OcResource ocResource : mIotivityResourceLookup.values()) {
+            if (ocResource.getUri().contains(Light.OIC_URI_PREFIX_LIGHT)) {
+                try {
+                    ocResource.cancelObserve();
+                } catch (OcException e) {
+                    IotivityScanner.msgError("Error occurred while invoking \"cancelObserve\" API for resource "
+                            + ocResource.getUri() + " -- " + e.toString());
+                }
+            }
+        }
     }
 
     class DeviceFoundListener implements OcPlatform.OnDeviceFoundListener {

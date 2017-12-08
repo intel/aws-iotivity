@@ -101,10 +101,10 @@ public class IotivityClient implements
                 light.setUri(resourceUri);
 
                 mResourceLookup.put(resourceUri, light);
-
-                // Call a local method which will internally invoke "observe" API on the found resource
-//                observeFoundResource(ocResource);
             }
+
+            // Call a local method which will internally invoke "observe" API on the found resource
+            observeFoundResource(ocResource);
 
             // For OCF devices, the name is the 'n' property of the device
             if (resourceUri.startsWith(Light.OCF_OIC_URI_PREFIX_LIGHT)
@@ -804,6 +804,19 @@ public class IotivityClient implements
         }
         payload.append("]}}}");
         return payload.toString();
+    }
+
+    public synchronized void cancelObserve() {
+        for (OcResource ocResource : mIotivityResourceLookup.values()) {
+            if (ocResource.getUri().contains(Light.OIC_URI_PREFIX_LIGHT)) {
+                try {
+                    ocResource.cancelObserve();
+                } catch (OcException e) {
+                    IotivityScanner.msgError("Error occurred while invoking \"cancelObserve\" API for resource "
+                            + ocResource.getUri() + " -- " + e.toString());
+                }
+            }
+        }
     }
 
     class DeviceFoundListener implements OcPlatform.OnDeviceFoundListener {

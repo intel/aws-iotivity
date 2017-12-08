@@ -91,6 +91,8 @@ public class IotivityScanner {
             }
 
             sleep(frequency);
+
+            iotivityClient.cancelObserve();
         }
     }
 
