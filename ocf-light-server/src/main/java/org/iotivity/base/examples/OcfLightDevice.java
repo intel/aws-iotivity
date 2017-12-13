@@ -22,9 +22,7 @@
 
 package org.iotivity.base.examples;
 
-import org.iotivity.base.ErrorCode;
 import org.iotivity.base.ModeType;
-import org.iotivity.base.OcException;
 import org.iotivity.base.OcPlatform;
 import org.iotivity.base.PlatformConfig;
 import org.iotivity.base.QualityOfService;
