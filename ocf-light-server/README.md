@@ -36,7 +36,7 @@ Once built, the build.sh and run.sh scripts expect iotivity.jar to be copied to 
 
 ## Run Command line parameters
 
-You can optionally set the name of the light and its inital on/off state and brightness.
+You can optionally set the name of the light and its initial on/off state and brightness.
 
     $ ./run.sh [ lightName [ on | off [ 0 - 100 ] ] ]
 
